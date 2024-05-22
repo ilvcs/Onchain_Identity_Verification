@@ -1,18 +1,16 @@
-const { ethers } = require("hardhat");
-// zkAirdropVerifier  contract address: 0x2C6AB393D01DBC882640f7C83B420a4859616307
-const UNIVERSAL_VERIFIER_CONTRACT_ADDRESS =
-	"0xa3e4472aF76F06370d95feAde9Cf777B0CeC2544";
+// zkAirdropVerifier  contract address: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+const { ethers, upgrades } = require("hardhat");
+
 async function main() {
 	const name = "ZKAirdrop Token";
 	const symbol = "ZKERC20";
 
 	const ZKAirdropVerifierFactory = await ethers.getContractFactory(
-		"ERC20LinkedUniversalVerifier",
+		"ERC20Verifier",
 	);
-	const zkAirdropVerifier = await ZKAirdropVerifierFactory.deploy(
-		UNIVERSAL_VERIFIER_CONTRACT_ADDRESS,
-		name,
-		symbol,
+	const zkAirdropVerifier = await upgrades.deployProxy(
+		ZKAirdropVerifierFactory,
+		[name, symbol],
 	);
 
 	await zkAirdropVerifier.waitForDeployment();

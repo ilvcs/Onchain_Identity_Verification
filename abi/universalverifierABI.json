@@ -1,0 +1,274 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IUniversalVerifier",
+  "sourceName": "contracts/interfaces/IUniversalVerifier.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "requestId",
+          "type": "uint64"
+        }
+      ],
+      "name": "getZKPRequest",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            },
+            {
+              "internalType": "contract ICircuitValidator",
+              "name": "validator",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "controller",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "isDisabled",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IUniversalVerifier.ZKPRequest",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "startIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "length",
+          "type": "uint256"
+        }
+      ],
+      "name": "getZKPRequests",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            },
+            {
+              "internalType": "contract ICircuitValidator",
+              "name": "validator",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "controller",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "isDisabled",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IUniversalVerifier.ZKPRequest[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getZKPRequestsCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "requestId",
+          "type": "uint64"
+        }
+      ],
+      "name": "requestIdExists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "requestId",
+          "type": "uint64"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            },
+            {
+              "internalType": "contract ICircuitValidator",
+              "name": "validator",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "internalType": "address",
+              "name": "controller",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "isDisabled",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct IUniversalVerifier.ZKPRequest",
+          "name": "request",
+          "type": "tuple"
+        }
+      ],
+      "name": "setZKPRequest",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "requestId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "inputs",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[2]",
+          "name": "a",
+          "type": "uint256[2]"
+        },
+        {
+          "internalType": "uint256[2][2]",
+          "name": "b",
+          "type": "uint256[2][2]"
+        },
+        {
+          "internalType": "uint256[2]",
+          "name": "c",
+          "type": "uint256[2]"
+        }
+      ],
+      "name": "submitZKPResponse",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "requestId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "inputs",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[2]",
+          "name": "a",
+          "type": "uint256[2]"
+        },
+        {
+          "internalType": "uint256[2][2]",
+          "name": "b",
+          "type": "uint256[2][2]"
+        },
+        {
+          "internalType": "uint256[2]",
+          "name": "c",
+          "type": "uint256[2]"
+        },
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "verifyZKPResponse",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "inputIndex",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct ICircuitValidator.KeyToInputIndex[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -4,6 +4,13 @@ const { SchemaHash } = require("@iden3/js-iden3-core");
 const { prepareCircuitArrayValues } = require("@0xpolygonid/js-sdk");
 const { ethers } = require("hardhat");
 
+const abi = require("../abi/universalverifierABI.json");
+
+const fs = require("fs");
+
+const UNIVERSAL_VERIFIER_CONTRACT_ADDRESS =
+	"0xa3e4472aF76F06370d95feAde9Cf777B0CeC2544";
+
 const Operators = {
 	NOOP: 0, // No operation, skip query verification in circuit
 	EQ: 1, // equal
@@ -74,7 +81,8 @@ function calculateQueryHash(
 }
 
 async function main() {
-	// you can run https://go.dev/play/p/3id7HAhf-Wi to get schema hash and claimPathKey using YOUR schema
+	const [signer] = await ethers.getSigners();
+	// you can run https://go.dev/play/p/oB_oOW7kBEw to get schema hash and claimPathKey using YOUR schema
 	// suggestion: Use your own go application with that code rather than using playground (it can give a timeout just because it’s restricted by the size of dependency package)
 	const schemaBigInt = "74977327600848231385663280181476307657";
 
@@ -109,18 +117,28 @@ async function main() {
 	).toString();
 
 	// NOTE: Add the address of the contract just deployed
-	const ERC20VerifierAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+	const ERC20VerifierAddress = "0x2C6AB393D01DBC882640f7C83B420a4859616307";
 
 	let erc20Verifier = await ethers.getContractAt(
-		"ERC20Verifier",
+		"ERC20LinkedUniversalVerifier",
 		ERC20VerifierAddress,
 	);
 
 	const network = "polygon-amoy";
 
 	const chainId = 80002;
+
 	const validatorAddress = "0x8c99F13dc5083b1E4c16f269735EaD4cFbc4970d"; // sig validator
 	// const validatorAddress = "0x0682fbaA2E4C478aD5d24d992069dba409766121"; // mtp validator
+	// const abi = JSON.parse(
+	// 	fs.readFileSync("../abi/universalverifierABI.json", "utf8"),
+	// );
+	console.log(abi);
+	const universalVerifier = new ethers.Contract(
+		UNIVERSAL_VERIFIER_CONTRACT_ADDRESS,
+		abi.abi,
+		signer,
+	);
 
 	const invokeRequestMetadata = {
 		id: "7f38a193-0918-4a48-9fac-36adfdb8b542",
@@ -155,7 +173,7 @@ async function main() {
 	};
 
 	try {
-		const txId = await erc20Verifier.setZKPRequest(requestId, {
+		const txId = await universalVerifier.setZKPRequest(requestId, {
 			metadata: JSON.stringify(invokeRequestMetadata),
 			validator: validatorAddress,
 			data: packValidatorParams(query),
