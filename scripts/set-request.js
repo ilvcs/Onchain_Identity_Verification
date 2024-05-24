@@ -2,14 +2,14 @@ const { Web3 } = require("web3");
 const { poseidon } = require("@iden3/js-crypto");
 const { SchemaHash } = require("@iden3/js-iden3-core");
 const { prepareCircuitArrayValues } = require("@0xpolygonid/js-sdk");
+
+const UniversalVerifier = require("../abi/UniversalVerifier.json");
 const { ethers } = require("hardhat");
-
-const abi = require("../abi/universalverifierABI.json");
-
-const fs = require("fs");
-
-const UNIVERSAL_VERIFIER_CONTRACT_ADDRESS =
-	"0xa3e4472aF76F06370d95feAde9Cf777B0CeC2544";
+// Put your values here
+const ZK_AIRDROP_VERIFIER_ADDRESS =
+	"0x5105bFeD2fDB001c2b50758090ee009bbBDcfbFE";
+const VALIDATOR_ADDRESS = "0x8c99F13dc5083b1E4c16f269735EaD4cFbc4970d";
+const UNIVERSAL_VERIFIER_ADDRESS = "0x70696036CA1868B42155b06235F95549667Eb0BE";
 
 const Operators = {
 	NOOP: 0, // No operation, skip query verification in circuit
@@ -58,7 +58,7 @@ function coreSchemaFromStr(schemaIntString) {
 	return SchemaHash.newSchemaHashFromInt(schemaInt);
 }
 
-function calculateQueryHash(
+function calculateQueryHashV2(
 	values,
 	schema,
 	slotIndex,
@@ -81,9 +81,7 @@ function calculateQueryHash(
 }
 
 async function main() {
-	const [signer] = await ethers.getSigners();
 	// you can run https://go.dev/play/p/oB_oOW7kBEw to get schema hash and claimPathKey using YOUR schema
-	// suggestion: Use your own go application with that code rather than using playground (it can give a timeout just because it’s restricted by the size of dependency package)
 	const schemaBigInt = "74977327600848231385663280181476307657";
 
 	const type = "KYCAgeCredential";
@@ -107,7 +105,7 @@ async function main() {
 		claimPathNotExists: 0,
 	};
 
-	query.queryHash = calculateQueryHash(
+	query.queryHash = calculateQueryHashV2(
 		query.value,
 		query.schema,
 		query.slotIndex,
@@ -115,30 +113,6 @@ async function main() {
 		query.claimPathKey,
 		query.claimPathNotExists,
 	).toString();
-
-	// NOTE: Add the address of the contract just deployed
-	const ERC20VerifierAddress = "0x2C6AB393D01DBC882640f7C83B420a4859616307";
-
-	let erc20Verifier = await ethers.getContractAt(
-		"ERC20LinkedUniversalVerifier",
-		ERC20VerifierAddress,
-	);
-
-	const network = "polygon-amoy";
-
-	const chainId = 80002;
-
-	const validatorAddress = "0x8c99F13dc5083b1E4c16f269735EaD4cFbc4970d"; // sig validator
-	// const validatorAddress = "0x0682fbaA2E4C478aD5d24d992069dba409766121"; // mtp validator
-	// const abi = JSON.parse(
-	// 	fs.readFileSync("../abi/universalverifierABI.json", "utf8"),
-	// );
-	console.log(abi);
-	const universalVerifier = new ethers.Contract(
-		UNIVERSAL_VERIFIER_CONTRACT_ADDRESS,
-		abi.abi,
-		signer,
-	);
 
 	const invokeRequestMetadata = {
 		id: "7f38a193-0918-4a48-9fac-36adfdb8b542",
@@ -148,10 +122,10 @@ async function main() {
 		body: {
 			reason: "airdrop participation",
 			transaction_data: {
-				contract_address: ERC20VerifierAddress,
+				contract_address: ZK_AIRDROP_VERIFIER_ADDRESS,
 				method_id: "b68967e2",
-				chain_id: chainId,
-				network: network,
+				chain_id: 80002,
+				network: "polygon-amoy",
 			},
 			scope: [
 				{
@@ -173,12 +147,23 @@ async function main() {
 	};
 
 	try {
-		const txId = await universalVerifier.setZKPRequest(requestId, {
+		// ############### Use this code to set request in Universal Verifier ############
+
+		const universalVerifier = await ethers.getContractAt(
+			UniversalVerifier.abi,
+			UNIVERSAL_VERIFIER_ADDRESS,
+		);
+
+		await universalVerifier.addValidatorToWhitelist(VALIDATOR_ADDRESS);
+
+		// You can call this method on behalf of any signer which is supposed to be request controller
+		await universalVerifier.setZKPRequest(requestId, {
 			metadata: JSON.stringify(invokeRequestMetadata),
-			validator: validatorAddress,
+			validator: VALIDATOR_ADDRESS,
 			data: packValidatorParams(query),
 		});
-		console.log("Request set: ", txId.hash);
+
+		console.log("Request set");
 	} catch (e) {
 		console.log("error: ", e);
 	}
@@ -190,3 +175,35 @@ main()
 		console.error(error);
 		process.exit(1);
 	});
+
+// {
+// 	"id": "7f38a193-0918-4a48-9fac-36adfdb8b542",
+// 	"typ": "application/iden3comm-plain-json",
+// 	"type": "https://iden3-communication.io/proofs/1.0/contract-invoke-request",
+// 	"thid": "7f38a193-0918-4a48-9fac-36adfdb8b542",
+// 	"body": {
+// 		"reason": "airdrop participation",
+// 		"transaction_data": {
+// 			"contract_address": "0x5105bFeD2fDB001c2b50758090ee009bbBDcfbFE",
+// 			"method_id": "b68967e2",
+// 			"chain_id": 80002,
+// 			"network": "polygon-amoy"
+// 		},
+// 		"scope": [
+// 			{
+// 				"id": 1,
+// 				"circuitId": "credentialAtomicQuerySigV2OnChain",
+// 				"query": {
+// 					"allowedIssuers": ["*"],
+// 					"context": "https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld",
+// 					"credentialSubject": {
+// 						"birthday": {
+// 							"$lt": 20020101
+// 						}
+// 					},
+// 					"type": "KYCAgeCredential"
+// 				}
+// 			}
+// 		]
+// 	}
+// }
