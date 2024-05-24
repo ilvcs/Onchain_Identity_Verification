@@ -1,30 +1,23 @@
 const { ethers } = require("hardhat");
-// zkAirdropVerifier  contract address: 0x2C6AB393D01DBC882640f7C83B420a4859616307
-const UNIVERSAL_VERIFIER_CONTRACT_ADDRESS =
-	"0xa3e4472aF76F06370d95feAde9Cf777B0CeC2544";
+// UniversalVerifier deployed to: 0x1377Ef2A26364c388d1e4873CFb10f14A6fb8854
+
 async function main() {
-	const name = "ZKAirdrop Token";
-	const symbol = "ZKERC20";
+	const universalVerifierAddress = "0x1377Ef2A26364c388d1e4873CFb10f14A6fb8854";
+	const verifierName = "ZKAirdropVerifier";
+	const verifierSymbol = "zkERC20";
 
-	const ZKAirdropVerifierFactory = await ethers.getContractFactory(
-		"ERC20LinkedUniversalVerifier",
-	);
-	const zkAirdropVerifier = await ZKAirdropVerifierFactory.deploy(
-		UNIVERSAL_VERIFIER_CONTRACT_ADDRESS,
-		name,
-		symbol,
-	);
-
-	await zkAirdropVerifier.waitForDeployment();
-	console.log(
-		"zkAirdropVerifier  contract address:",
-		await zkAirdropVerifier.getAddress(),
-	);
+	const verifier = await ethers.deployContract(verifierName, [
+		universalVerifierAddress,
+		verifierName,
+		verifierSymbol,
+	]);
+	await verifier.waitForDeployment();
+	console.log(verifierName, " contract address:", await verifier.getAddress());
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-	console.error(error);
-	process.exitCode = 1;
-});
+main()
+	.then(() => process.exit(0))
+	.catch((error) => {
+		console.error(error);
+		process.exit(1);
+	});
