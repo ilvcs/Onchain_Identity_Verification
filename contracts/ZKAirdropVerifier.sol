@@ -7,17 +7,23 @@ import {ICircuitValidator} from '@iden3/contracts/interfaces/ICircuitValidator.s
 import {UniversalVerifier} from '@iden3/contracts/verifiers/UniversalVerifier.sol';
 
 contract ZKAirdropVerifier is ERC20 {
-   uint64 public constant TRANSFER_REQUEST_ID_SIG_VALIDATOR = 0;
-   uint64 public constant TRANSFER_REQUEST_ID_MTP_VALIDATOR = 1;
+   uint64 public constant REQUEST_ID = 12345;
 
    UniversalVerifier public verifier;
 
    uint256 public TOKEN_AMOUNT_FOR_AIRDROP_PER_ID = 5 * 10 ** uint256(decimals());
 
+   mapping(address => bool) public isClaimed;
+
    modifier beforeTokenTransfer(address to) {
+      // only one airdrop per address is allowed
       require(
-         verifier.getProofStatus(to, TRANSFER_REQUEST_ID_SIG_VALIDATOR).isVerified ||
-         verifier.getProofStatus(to, TRANSFER_REQUEST_ID_MTP_VALIDATOR).isVerified,
+         !isClaimed[to],
+         'only one airdrop per address is allowed'
+      );
+
+      require(
+         verifier.getProofStatus(to, REQUEST_ID).isVerified ,
          'only identities who provided sig or mtp proof for transfer requests are allowed to receive tokens'
       );
       _;
@@ -31,8 +37,13 @@ contract ZKAirdropVerifier is ERC20 {
       verifier = verifier_;
    }
 
-   function mint(address to) public {
-      _mint(to, TOKEN_AMOUNT_FOR_AIRDROP_PER_ID);
+   function mint() public {
+      
+      require(msg.sender == tx.origin, 'only EOA can mint');
+      require(msg.sender != address(0), 'invalid address');
+      _mint(msg.sender, TOKEN_AMOUNT_FOR_AIRDROP_PER_ID);
+      // mark the address as claimed
+      isClaimed[msg.sender] = true;
    }
 
    function _update(
