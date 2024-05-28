@@ -1,3 +1,3 @@
-# ZKAirdrop: Onchain Identity Verification with Smart Contracts and Zero Knowledge Proofs
+## ZKAirdrop: Onchain Identity Verification with Smart Contracts and Zero Knowledge Proofs
 
 ##
