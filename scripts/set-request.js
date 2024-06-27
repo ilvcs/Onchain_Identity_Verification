@@ -154,8 +154,6 @@ async function main() {
 			UNIVERSAL_VERIFIER_ADDRESS,
 		);
 
-		await universalVerifier.addValidatorToWhitelist(VALIDATOR_ADDRESS);
-
 		// You can call this method on behalf of any signer which is supposed to be request controller
 		await universalVerifier.setZKPRequest(requestId, {
 			metadata: JSON.stringify(invokeRequestMetadata),
